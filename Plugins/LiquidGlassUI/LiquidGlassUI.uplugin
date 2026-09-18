@@ -1,0 +1,12 @@
+{
+  "FileVersion": 3,
+  "Version": 3,
+  "VersionName": "0.3.0",
+  "FriendlyName": "Liquid Glass UI",
+  "Description": "Same-frame Slate backdrop refraction and blur with a UMG content widget. Developed and tested against UE 5.8.",
+  "Category": "UI",
+  "CreatedBy": "LiquidGlassUI Contributors",
+  "CanContainContent": false,
+  "IsBetaVersion": true,
+  "Modules": [{"Name": "LiquidGlassUI", "Type": "Runtime", "LoadingPhase": "PostConfigInit", "PlatformAllowList": ["Win64"]}]
+}

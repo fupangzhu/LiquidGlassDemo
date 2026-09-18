@@ -1,0 +1,98 @@
+#include "/Engine/Public/Platform.ush"
+
+Texture2D SourceTexture;
+SamplerState SourceSampler;
+float2 InvOutputSize;
+float BlurCenterWeight;
+uint BlurTapCount;
+float4 BlurTaps[16];
+
+void BlurPS(float4 Position : SV_POSITION, out float4 Color : SV_Target0)
+{
+    float2 uv = Position.xy * InvOutputSize;
+    Color = SourceTexture.SampleLevel(SourceSampler, uv, 0) * BlurCenterWeight;
+    // Paired Gaussian taps calculated once per pass on CPU. No sparse stretched kernel.
+    for (uint i = 0; i < BlurTapCount; ++i)
+    {
+        Color += SourceTexture.SampleLevel(SourceSampler, uv + BlurTaps[i].xy, 0) * BlurTaps[i].z;
+        Color += SourceTexture.SampleLevel(SourceSampler, uv - BlurTaps[i].xy, 0) * BlurTaps[i].z;
+    }
+}
+float4 CaptureRect; // xy = origin in target pixels, zw = inverse capture size
+float4 OriginAndSize;
+float4 ScreenToLocal;
+float4 LocalToScreen;
+float4 Shape; // corner radius, bevel width, refraction, dispersion
+float4 SurfaceTint;
+float4 Effects; // rim, inner shadow, opacity, reserved
+float4 RimLighting; // screen-space light axis xy, rim width, perpendicular edge shadow
+uint ClipPlaneCount;
+float4 ClipPlanes[32];
+
+float RoundedDistance(float2 p)
+{
+    float2 q = abs(p) - OriginAndSize.zw * .5 + Shape.x;
+    return length(max(q, 0)) + min(max(q.x, q.y), 0) - Shape.x;
+}
+
+float3 Backdrop(float2 screenPosition)
+{
+    float2 uv = (screenPosition - CaptureRect.xy) * CaptureRect.zw;
+    return SourceTexture.SampleLevel(SourceSampler, uv, 0).rgb;
+}
+
+void GlassPS(float4 Position : SV_POSITION, out float4 Color : SV_Target0)
+{
+    for (uint i = 0; i < ClipPlaneCount; ++i)
+        clip(dot(ClipPlanes[i].xy, Position.xy) + ClipPlanes[i].z);
+
+    float2 screenDelta = Position.xy - OriginAndSize.xy;
+    float2 local = float2(dot(screenDelta, ScreenToLocal.xy), dot(screenDelta, ScreenToLocal.zw));
+    float2 p = local - OriginAndSize.zw * .5;
+    float distance = RoundedDistance(p);
+    float aa = max(fwidth(distance), .001);
+    float coverage = saturate(.5 - distance / aa);
+    clip(coverage - .001);
+
+    float2 q = abs(p) - (OriginAndSize.zw * .5 - Shape.x);
+    float2 n = q.x > q.y ? float2(1, 0) : float2(0, 1);
+    if (max(q.x, q.y) > 0) n = normalize(max(q, 0) + .00001);
+    n *= sign(p + .00001);
+    float inside = max(-distance, 0);
+    float bevel = pow(saturate(1 - inside / Shape.y), 2);
+    float2 normalScreen = LocalToScreen.xy * n.x + LocalToScreen.zw * n.y;
+    float2 displacement = -normalScreen * Shape.z * bevel;
+    float2 spectral = normalScreen * Shape.w * bevel;
+    float2 samplePoint = Position.xy + displacement;
+    float3 c;
+    c.r = Backdrop(samplePoint + spectral).r;
+    c.g = Backdrop(samplePoint).g;
+    c.b = Backdrop(samplePoint - spectral).b;
+    c = lerp(c, SurfaceTint.rgb, SurfaceTint.a);
+
+    // The inverse-transpose keeps light fixed in screen space under rotation/nonuniform scale.
+    float2 surfaceNormal = normalize(float2(ScreenToLocal.x * n.x + ScreenToLocal.z * n.y,
+        ScreenToLocal.y * n.x + ScreenToLocal.w * n.y));
+    // Two opposing softbox reflections: both horizontal edges glow at the default 0-degree axis.
+    float facing = saturate(abs(dot(surfaceNormal, RimLighting.xy)));
+    float reflection = pow(facing, 3);
+    float side = pow(saturate(1 - facing * facing), 2);
+    float rim = exp2(-inside / max(RimLighting.z, aa * .75));
+    // Hard contour measured in screen pixels, with only antialiasing at its boundary.
+    float pixelScale = max(length(float2(ScreenToLocal.x * n.x + ScreenToLocal.z * n.y,
+        ScreenToLocal.y * n.x + ScreenToLocal.w * n.y)), .001);
+    float depthPixels = inside / pixelScale;
+    float edgeAA = max(aa / pixelScale, .5);
+    float lowerEdge = saturate(surfaceNormal.y);
+    float outlineWidth = lerp(.65 * lowerEdge, 1.5, side);
+    float outline = (1 - smoothstep(outlineWidth - edgeAA * .5,
+        outlineWidth + edgeAA * .5, depthPixels)) * saturate(side + lowerEdge);
+    float inner = exp(-inside / max(Shape.y * .25, aa));
+    c *= 1 - saturate(Effects.y * inner * .45 * reflection);
+    float sheen = saturate(Effects.x * reflection * (rim + bevel * .10));
+    c = lerp(c, float3(1, 1, 1), sheen);
+    // Muted neutral gray anchors the white highlight without a black halo.
+    float3 contourGray = min(c, float3(.24, .24, .24));
+    c = lerp(c, contourGray, outline * saturate(RimLighting.w * 2));
+    Color = float4(c, coverage * Effects.z);
+}
