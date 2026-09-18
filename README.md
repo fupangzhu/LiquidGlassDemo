@@ -2,6 +2,11 @@
 
 UE 5.8 的 UMG / Slate 液态玻璃插件，附带可交互的参数调试工具。支持实时调整模糊、折射、色散、圆角和光照，切换 Clear / Frosted / Lens 预设与背景，并测试 UMG / Slate 按钮和滑块。
 
+## 下载
+
+- **直接体验**：[Windows 完整试玩包](https://github.com/fupangzhu/LiquidGlassDemo/releases/download/v0.3.0/LiquidGlassDemo-0.3.0-Windows-x64.zip)。解压后双击 `LiquidGlassDemo.exe`，无需安装 UE。如提示缺少运行库，先运行 `Prerequisites/vc_redist.x64.exe`。
+- **继续开发**：[完整源码包](https://github.com/fupangzhu/LiquidGlassDemo/releases/download/v0.3.0/LiquidGlassDemo-0.3.0-Source.zip)，包含插件、示例工程和构建脚本。启动方法见下方。
+
 ## 工具界面
 
 **光学参数**：拖动玻璃卡片，实时调整模糊、折射、色散和透明度。
