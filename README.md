@@ -1,10 +1,32 @@
 # Liquid Glass UI
 
-UE 5.8 的 UMG / Slate 液态玻璃控件示例。背景实时模糊与折射，文字和按钮保持清晰。
+UE 5.8 的 UMG / Slate 液态玻璃插件，附带可交互的参数调试工具。支持实时调整模糊、折射、色散、圆角和光照，切换 Clear / Frosted / Lens 预设与背景，并测试 UMG / Slate 按钮和滑块。
 
+## 工具界面
+
+**光学参数**：拖动玻璃卡片，实时调整模糊、折射、色散和透明度。
+
+![完整工具界面与光学参数面板](docs/ui-optics.png)
+
+**光照参数**：调整光源方向、高光强度、亮边宽度和灰边强度。
+
+![光照参数页与可交互控件](docs/preview.png)
+
+**网格背景**：观察玻璃边缘的折射、色散和背景模糊。
+
+![网格背景下的完整调试界面](docs/ui-grid.png)
+
+**文字背景**：对比背景文字模糊与玻璃上方清晰的前景控件。
+
+![文字背景下的完整调试界面](docs/ui-text.png)
+
+<details>
+<summary>查看动态效果</summary>
 ![动态背景](docs/live-glass.gif)
 ![网格折射](docs/grid-refraction.gif)
 ![文字背景](docs/text-glass.gif)
+
+</details>
 
 ## 启动
 
