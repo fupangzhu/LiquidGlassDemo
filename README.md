@@ -44,3 +44,5 @@ UE 5.8 的 UMG / Slate 液态玻璃插件，附带可交互的参数调试工具
 要在自己的工程使用，将 `Plugins/LiquidGlassUI` 复制到工程的 `Plugins` 目录并编译，在 UMG 中添加 **Liquid Glass Panel** 即可。详见[插件用法](Plugins/LiquidGlassUI/README.md)。
 
 当前验证平台：Windows / D3D12 / SDR。
+
+许可证：[MIT](LICENSE)。UE 引擎及其附带资源仍适用各自的许可。
