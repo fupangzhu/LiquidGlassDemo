@@ -22,8 +22,11 @@ UE 5.8 的 UMG / Slate 液态玻璃插件，附带可交互的参数调试工具
 
 <details>
 <summary>查看动态效果</summary>
+
 ![动态背景](docs/live-glass.gif)
+
 ![网格折射](docs/grid-refraction.gif)
+
 ![文字背景](docs/text-glass.gif)
 
 </details>
