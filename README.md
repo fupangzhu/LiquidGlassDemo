@@ -2,6 +2,14 @@
 
 UE 5.8 的 UMG / Slate 液态玻璃插件，附带可交互的参数调试工具。支持实时调整模糊、折射、色散、圆角和光照，切换 Clear / Frosted / Lens 预设与背景，并测试 UMG / Slate 按钮和滑块。
 
+## OMNI 悬浮气泡参考
+
+![OMNI 的悬浮玻璃状态提示，左上细白边、右下淡蓝边，背景从玻璃中央透过](docs/omni-floating-glass.png)
+
+这张图来自 OMNI 工作台的状态提示。淡色透底、局部细亮边和轻柔的投影让它在纯色背景上仍有层次。气泡从状态点上方弹出，只有靠边的窄带会弯折背后的图形，正文始终清晰。
+
+可以把 [`reproduce-floating-glass` skill](skills/reproduce-floating-glass/SKILL.md) 交给其他 agent。它记录了 Web 原始参数、与本仓库 Slate shader 的对应关系，以及用纯色、网格和文字背景逐层验收的方法。[实现参数与 UE 映射](skills/reproduce-floating-glass/references/implementation.md)
+
 ## 下载
 
 - **直接体验**：[Windows 完整试玩包](https://github.com/fupangzhu/LiquidGlassDemo/releases/download/v0.3.0/LiquidGlassDemo-0.3.0-Windows-x64.zip)。解压后双击 `LiquidGlassDemo.exe`，无需安装 UE。如提示缺少运行库，先运行 `Prerequisites/vc_redist.x64.exe`。
